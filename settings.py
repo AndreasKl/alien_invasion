@@ -12,8 +12,9 @@ class Settings:
         self.bullet_color = (230, 0, 0)
         self.bullets_allowed = 5
         self.alien_speed = 0.50
+        self.alien_speed_increase = 0.4
         self.fleet_drop_speed = 10
         self.fleet_direction = 1
         self.ship_limit: int = 3
-        self.level_teaser_duration_frames: int = 60 * 1.5
+        self.level_teaser_duration_frames: int = 90
         self.level_count = 100

@@ -1,3 +1,4 @@
+from game_stats import GameStats
 from settings import Settings
 import pygame
 import random
@@ -12,6 +13,7 @@ class Coin(Sprite):
         super().__init__(*groups)
         self.screen = ai_game.screen
         self.settings: Settings = ai_game.settings
+        self.stats: GameStats = ai_game.stats
 
         self.point = random.choice(self.coin_points)
         image = "images/coin_{}.png".format(self.point)
@@ -32,7 +34,7 @@ class Coin(Sprite):
         return False
 
     def update(self, *args, **kwargs) -> None:
-        self.x += self.settings.alien_speed * self.fleet_direction
+        self.x += self.stats.get_flight_object_speed() * self.fleet_direction
         self.rect.x = self.x
         return super().update(*args, **kwargs)
 

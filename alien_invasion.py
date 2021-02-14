@@ -13,8 +13,8 @@ from button import Button
 from game_stats import GameStats, Mode
 from background import Background
 from level_display import LevelDisplay
-from score_display import HUDisplay
-
+from hu_display import HUDisplay
+from pause_display import PauseDisplay
 
 back_ground = Background("images/background.jpg", [0, 0])
 clock = pygame.time.Clock()
@@ -28,7 +28,8 @@ class AlienInvasion:
 
         pygame.mixer.init()
         pygame.mixer.music.load("sounds/tune.ogg")
-        pygame.mixer.music.play()
+        pygame.mixer.music.set_volume(0.75)
+        pygame.mixer.music.play(-1)
         pygame.event.wait()
 
         self.screen = pygame.display.set_mode(self.settings.screen_size)
@@ -37,6 +38,8 @@ class AlienInvasion:
         self.stats = GameStats(self)
         self.level_display = LevelDisplay(self, list(range(self.settings.level_count, -1, -1)))
         self.score_display = HUDisplay(self)
+        self.pause_display = PauseDisplay(self)
+
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
         self.flight_objects = pygame.sprite.Group()
@@ -81,6 +84,7 @@ class AlienInvasion:
             self.level_display.draw()
 
         self.score_display.draw()
+        self.pause_display.draw()
 
         pygame.display.flip()
 
@@ -108,6 +112,8 @@ class AlienInvasion:
         if event.key == pygame.K_SPACE:
             self._fire_bullet()
             self._start_game()
+        if event.key == pygame.K_p:
+            self._pause_game()
         if event.key == pygame.K_q:
             sys.exit()
 
@@ -162,7 +168,6 @@ class AlienInvasion:
 
     def _create_flight_object(self, row_number: int, alien_number: int):
         flight_object = self._provide_flight_object()
-
         fo_width, fo_height = flight_object.rect.size
         flight_object.x = fo_width + 1.4 * fo_width * alien_number
         flight_object.rect.y = fo_height + 2 * fo_height * row_number
@@ -222,7 +227,7 @@ class AlienInvasion:
     def _ship_hit(self):
         # Draw an explosion animation
         pygame.mixer.Channel(0).play(pygame.mixer.Sound('sounds/explosion.ogg'))
-        if self.stats.ships_left > 0:
+        if self.stats.ships_left > 1:
             self.stats.ships_left -= 1
             # self.flight_objects.empty()
             self.bullets.empty()
@@ -246,6 +251,15 @@ class AlienInvasion:
         self.flight_objects.empty()
         self.bullets.empty()
         self.ship.center_ship()
+
+    def _pause_game(self):
+        if self.stats.is_active:
+            self.stats.set_game_mode(Mode.PAUSE)
+            return
+
+        if self.stats.is_paused:
+            self.stats.set_game_mode(Mode.ACTIVE)
+            return
 
 
 ai = AlienInvasion()

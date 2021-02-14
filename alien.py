@@ -1,3 +1,4 @@
+from game_stats import GameStats
 from settings import Settings
 import pygame
 
@@ -9,6 +10,8 @@ class Alien(Sprite):
         super().__init__(*groups)
         self.screen = ai_game.screen
         self.settings: Settings = ai_game.settings
+        self.stats: GameStats = ai_game.stats
+
         self.image = pygame.image.load("images/alien_ship.png")
         self.rect = self.image.get_rect()
         self.rect.x = self.rect.width
@@ -26,7 +29,7 @@ class Alien(Sprite):
         return False
 
     def update(self, *args, **kwargs) -> None:
-        self.x += self.settings.alien_speed * self.fleet_direction
+        self.x += self.stats.get_flight_object_speed() * self.fleet_direction
         self.rect.x = self.x
         return super().update(*args, **kwargs)
 

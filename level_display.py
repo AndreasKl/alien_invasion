@@ -3,6 +3,7 @@ import pygame
 from game_stats import Mode
 
 
+# FIXME: Remove coupling of display and logic...
 class LevelDisplay:
 
     def __init__(self, ai_game, level_names):
@@ -19,6 +20,8 @@ class LevelDisplay:
         self.default_duration = ai_game.settings.level_teaser_duration_frames
         self.duration = self.default_duration
         self.default_level_names = level_names
+        self.level_names = None
+        self.current_level = None
         self.prepare_level_counter()
 
     def prepare_level_counter(self):
@@ -27,6 +30,7 @@ class LevelDisplay:
 
     def update_level(self):
         self.current_level = self.level_names.pop()
+        self.stats.set_level(self.current_level)
         self._prep_msg(f"Level {self.current_level}")
 
     def update(self):
