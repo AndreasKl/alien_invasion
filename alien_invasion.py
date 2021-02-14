@@ -1,20 +1,20 @@
-import sys
-from time import sleep
 import math
-import pygame
 import random
+import sys
 
+import pygame
+
+from alien import Alien
+from background import Background
+from bullet import Bullet
+from button import Button
+from coin import Coin
+from game_stats import GameStats, Mode
+from hu_display import HUDisplay
+from level_display import LevelDisplay
+from pause_display import PauseDisplay
 from settings import Settings
 from ship import Ship
-from bullet import Bullet
-from alien import Alien
-from coin import Coin
-from button import Button
-from game_stats import GameStats, Mode
-from background import Background
-from level_display import LevelDisplay
-from hu_display import HUDisplay
-from pause_display import PauseDisplay
 
 back_ground = Background("images/background.jpg", [0, 0])
 clock = pygame.time.Clock()
@@ -39,12 +39,12 @@ class AlienInvasion:
         self.level_display = LevelDisplay(self, list(range(self.settings.level_count, -1, -1)))
         self.score_display = HUDisplay(self)
         self.pause_display = PauseDisplay(self)
+        self.play_button = Button(self, "Play!")
 
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
         self.flight_objects = pygame.sprite.Group()
         self._create_fleet()
-        self.play_button = Button(self, "Play!")
 
     def run_game(self) -> None:
         while True:
