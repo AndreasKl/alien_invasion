@@ -6,8 +6,7 @@ from pygame.sprite import Sprite, AbstractGroup
 
 
 class Coin(Sprite):
-
-    coin_points =  list(range(1, 7))
+    coin_points = list(range(1, 7))
 
     def __init__(self, ai_game, *groups: AbstractGroup) -> None:
         super().__init__(*groups)
@@ -16,8 +15,6 @@ class Coin(Sprite):
 
         self.point = random.choice(self.coin_points)
         image = "images/coin_{}.png".format(self.point)
-        print(image)
-
         self.image = pygame.image.load(image)
         self.rect = self.image.get_rect()
         self.rect.x = self.rect.width
@@ -38,6 +35,10 @@ class Coin(Sprite):
         self.x += self.settings.alien_speed * self.fleet_direction
         self.rect.x = self.x
         return super().update(*args, **kwargs)
+
+    @staticmethod
+    def is_enemy() -> bool:
+        return False
 
     def get_points(self) -> int:
         return self.point

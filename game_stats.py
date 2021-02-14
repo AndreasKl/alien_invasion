@@ -45,6 +45,8 @@ class GameStats:
     def is_not_active(self) -> None:
         return self.game_mode == Mode.NOT_ACTIVE
 
+    def get_points(self) -> int:
+        return self.points
+
     def add_points(self, points: int) -> None:
         self.points += points
-        print(f"More points [{self.points}].")

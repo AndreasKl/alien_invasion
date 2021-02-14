@@ -30,5 +30,10 @@ class Alien(Sprite):
         self.rect.x = self.x
         return super().update(*args, **kwargs)
 
+    @staticmethod
+    def is_enemy() -> bool:
+        return True
+
+    @staticmethod
     def get_points() -> int:
         return 0

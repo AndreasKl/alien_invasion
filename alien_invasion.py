@@ -13,6 +13,8 @@ from button import Button
 from game_stats import GameStats, Mode
 from background import Background
 from level_display import LevelDisplay
+from score_display import HUDisplay
+
 
 back_ground = Background("images/background.jpg", [0, 0])
 clock = pygame.time.Clock()
@@ -33,7 +35,8 @@ class AlienInvasion:
         pygame.display.set_caption("Theos Alien Invasion")
 
         self.stats = GameStats(self)
-        self.level_display = LevelDisplay(self, [i for i in range(self.settings.level_count, -1, -1)])
+        self.level_display = LevelDisplay(self, list(range(self.settings.level_count, -1, -1)))
+        self.score_display = HUDisplay(self)
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
         self.flight_objects = pygame.sprite.Group()
@@ -71,10 +74,13 @@ class AlienInvasion:
 
         if self.stats.is_not_active:
             self.play_button.draw()
+            # FIXME: Do not reset on every render.
             self.level_display.reset()
 
         if self.stats.is_changing_level:
             self.level_display.draw()
+
+        self.score_display.draw()
 
         pygame.display.flip()
 
@@ -101,6 +107,7 @@ class AlienInvasion:
             self.ship.moving_down = True
         if event.key == pygame.K_SPACE:
             self._fire_bullet()
+            self._start_game()
         if event.key == pygame.K_q:
             sys.exit()
 
@@ -117,12 +124,7 @@ class AlienInvasion:
     def _check_play_button(self, mouse_pos):
         button_clicked = self.play_button.rect.collidepoint(mouse_pos)
         if button_clicked and self.stats.is_not_active:
-            pygame.mouse.set_visible(False)
-            self.stats.set_game_mode(Mode.CHANGING_LEVEL)
-            self.stats.reset_stats()
-            self.flight_objects.empty()
-            self.bullets.empty()
-            self.ship.center_ship()
+            self._start_game()
 
     def _update_bullets(self):
         collisions = pygame.sprite.groupcollide(self.bullets, self.flight_objects, True, True)
@@ -141,10 +143,14 @@ class AlienInvasion:
                 self.bullets.remove(bullet)
 
     def _change_level(self):
-        if not self.flight_objects:
+        if self._all_enemies_killed():
             self.bullets.empty()
+            self.flight_objects.empty()
             self.ship.center_ship()
             self.stats.set_game_mode(Mode.CHANGING_LEVEL)
+
+    def _all_enemies_killed(self):
+        return not list(filter(lambda fo: fo.is_enemy(), self.flight_objects))
 
     def _fire_bullet(self):
         if not self.stats.is_active:
@@ -155,20 +161,22 @@ class AlienInvasion:
         self.bullets.add(new_bullet)
 
     def _create_flight_object(self, row_number: int, alien_number: int):
-        seed = ["alien", "coin"]
-        selected_type = random.choice(seed)
-        if selected_type == "alien":
-            flight_object = Alien(self)
-
-        if selected_type == "coin":
-            flight_object = Coin(self)
-
+        flight_object = self._provide_flight_object()
 
         fo_width, fo_height = flight_object.rect.size
         flight_object.x = fo_width + 1.4 * fo_width * alien_number
         flight_object.rect.y = fo_height + 2 * fo_height * row_number
         flight_object.rect.x = flight_object.x
         self.flight_objects.add(flight_object)
+
+    def _provide_flight_object(self):
+        seed = ["alien", "coin"]
+        selected_type = random.choice(seed)
+        if selected_type == "alien":
+            flight_object = Alien(self)
+        if selected_type == "coin":
+            flight_object = Coin(self)
+        return flight_object
 
     def _create_fleet(self):
         alien = Alien(self)
@@ -216,9 +224,9 @@ class AlienInvasion:
         pygame.mixer.Channel(0).play(pygame.mixer.Sound('sounds/explosion.ogg'))
         if self.stats.ships_left > 0:
             self.stats.ships_left -= 1
-            self.flight_objects.empty()
+            # self.flight_objects.empty()
             self.bullets.empty()
-            self._create_fleet()
+            # self._create_fleet()
             self.ship.center_ship()
         else:
             self.stats.set_game_mode(Mode.NOT_ACTIVE)
@@ -227,6 +235,16 @@ class AlienInvasion:
     def _set_stage(self):
         self.bullets.empty()
         self._create_fleet()
+        self.ship.center_ship()
+
+    def _start_game(self):
+        if not self.stats.is_not_active:
+            return
+        pygame.mouse.set_visible(False)
+        self.stats.set_game_mode(Mode.CHANGING_LEVEL)
+        self.stats.reset_stats()
+        self.flight_objects.empty()
+        self.bullets.empty()
         self.ship.center_ship()
 
 
