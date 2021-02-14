@@ -1,15 +1,24 @@
 from settings import Settings
 import pygame
+import random
 
 from pygame.sprite import Sprite, AbstractGroup
 
 
-class Alien(Sprite):
+class Coin(Sprite):
+
+    coin_points =  list(range(1, 7))
+
     def __init__(self, ai_game, *groups: AbstractGroup) -> None:
         super().__init__(*groups)
         self.screen = ai_game.screen
         self.settings: Settings = ai_game.settings
-        self.image = pygame.image.load("images/alien_ship.png")
+
+        self.point = random.choice(self.coin_points)
+        image = "images/coin_{}.png".format(self.point)
+        print(image)
+
+        self.image = pygame.image.load(image)
         self.rect = self.image.get_rect()
         self.rect.x = self.rect.width
         self.rect.y = self.rect.width
@@ -30,5 +39,5 @@ class Alien(Sprite):
         self.rect.x = self.x
         return super().update(*args, **kwargs)
 
-    def get_points() -> int:
-        return 0
+    def get_points(self) -> int:
+        return self.point

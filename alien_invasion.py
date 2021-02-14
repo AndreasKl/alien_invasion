@@ -2,11 +2,13 @@ import sys
 from time import sleep
 import math
 import pygame
+import random
 
 from settings import Settings
 from ship import Ship
 from bullet import Bullet
 from alien import Alien
+from coin import Coin
 from button import Button
 from game_stats import GameStats, Mode
 from background import Background
@@ -34,7 +36,7 @@ class AlienInvasion:
         self.level_display = LevelDisplay(self, [i for i in range(self.settings.level_count, -1, -1)])
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
-        self.aliens = pygame.sprite.Group()
+        self.flight_objects = pygame.sprite.Group()
         self._create_fleet()
         self.play_button = Button(self, "Play!")
 
@@ -65,7 +67,7 @@ class AlienInvasion:
         self.ship.blitme()
         for bullet in self.bullets:
             bullet.draw_bullet()
-        self.aliens.draw(self.screen)
+        self.flight_objects.draw(self.screen)
 
         if self.stats.is_not_active:
             self.play_button.draw()
@@ -118,12 +120,20 @@ class AlienInvasion:
             pygame.mouse.set_visible(False)
             self.stats.set_game_mode(Mode.CHANGING_LEVEL)
             self.stats.reset_stats()
-            self.aliens.empty()
+            self.flight_objects.empty()
             self.bullets.empty()
             self.ship.center_ship()
 
     def _update_bullets(self):
-        collisions = pygame.sprite.groupcollide(self.bullets, self.aliens, True, True)
+        collisions = pygame.sprite.groupcollide(self.bullets, self.flight_objects, True, True)
+        if collisions:
+            for key, value in collisions.items():
+                if type(key) is Coin:
+                    self.stats.add_points(value.get_points())
+                candidate = value[-1]
+                if type(candidate) is Coin:
+                    self.stats.add_points(candidate.get_points())
+
         self.bullets.update()
 
         for bullet in self.bullets.copy():
@@ -131,7 +141,7 @@ class AlienInvasion:
                 self.bullets.remove(bullet)
 
     def _change_level(self):
-        if not self.aliens:
+        if not self.flight_objects:
             self.bullets.empty()
             self.ship.center_ship()
             self.stats.set_game_mode(Mode.CHANGING_LEVEL)
@@ -144,13 +154,21 @@ class AlienInvasion:
         new_bullet = Bullet(self)
         self.bullets.add(new_bullet)
 
-    def _create_alien(self, row_number: int, alien_number: int):
-        alien = Alien(self)
-        alien_width, alien_height = alien.rect.size
-        alien.x = alien_width + 1.4 * alien_width * alien_number
-        alien.rect.y = alien_height + 2 * alien_height * row_number
-        alien.rect.x = alien.x
-        self.aliens.add(alien)
+    def _create_flight_object(self, row_number: int, alien_number: int):
+        seed = ["alien", "coin"]
+        selected_type = random.choice(seed)
+        if selected_type == "alien":
+            flight_object = Alien(self)
+
+        if selected_type == "coin":
+            flight_object = Coin(self)
+
+
+        fo_width, fo_height = flight_object.rect.size
+        flight_object.x = fo_width + 1.4 * fo_width * alien_number
+        flight_object.rect.y = fo_height + 2 * fo_height * row_number
+        flight_object.rect.x = flight_object.x
+        self.flight_objects.add(flight_object)
 
     def _create_fleet(self):
         alien = Alien(self)
@@ -164,23 +182,23 @@ class AlienInvasion:
 
         for row_number in range(number_of_rows):
             for alien_number in range(number_of_aliens_x):
-                self._create_alien(row_number, alien_number)
+                self._create_flight_object(row_number, alien_number)
 
     def _check_fleet_edges(self):
-        for alien in self.aliens.sprites():
+        for alien in self.flight_objects.sprites():
             if alien.check_edges():
                 return True
         return False
 
     def _change_fleet_direction(self, change_direction):
-        for alien in self.aliens.sprites():
+        for alien in self.flight_objects.sprites():
             if change_direction:
                 alien.change_direction()
                 alien.rect.y += self.settings.fleet_drop_speed
 
     def _check_aliens_bottom(self):
         screen_rect = self.screen.get_rect()
-        for alien in self.aliens.sprites():
+        for alien in self.flight_objects.sprites():
             if alien.rect.bottom >= screen_rect.bottom:
                 self._ship_hit()
                 break
@@ -188,8 +206,8 @@ class AlienInvasion:
     def _update_aliens(self):
         change_direction = self._check_fleet_edges()
         self._change_fleet_direction(change_direction=change_direction)
-        self.aliens.update()
-        if pygame.sprite.spritecollideany(self.ship, self.aliens):
+        self.flight_objects.update()
+        if pygame.sprite.spritecollideany(self.ship, self.flight_objects):
             self._ship_hit()
         self._check_aliens_bottom()
 
@@ -198,7 +216,7 @@ class AlienInvasion:
         pygame.mixer.Channel(0).play(pygame.mixer.Sound('sounds/explosion.ogg'))
         if self.stats.ships_left > 0:
             self.stats.ships_left -= 1
-            self.aliens.empty()
+            self.flight_objects.empty()
             self.bullets.empty()
             self._create_fleet()
             self.ship.center_ship()
