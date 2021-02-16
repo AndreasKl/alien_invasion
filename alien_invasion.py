@@ -254,10 +254,12 @@ class AlienInvasion:
 
     def _pause_game(self):
         if self.stats.is_active:
+            pygame.mixer.music.pause()
             self.stats.set_game_mode(Mode.PAUSE)
             return
 
         if self.stats.is_paused:
+            pygame.mixer.music.unpause()
             self.stats.set_game_mode(Mode.ACTIVE)
             return
 
