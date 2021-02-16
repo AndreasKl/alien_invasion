@@ -41,7 +41,7 @@ class AlienInvasion:
         self.pause_display = PauseDisplay(self)
         self.play_button = Button(self, "Play!")
 
-        self.ship = Ship(self)
+        self.ship = Ship(self, False)
         self.bullets = pygame.sprite.Group()
         self.flight_objects = pygame.sprite.Group()
         self._create_fleet()

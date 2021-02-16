@@ -1,8 +1,10 @@
 import pygame
 
+from particles import Particles
+
 
 class Ship:
-    def __init__(self, ai_game) -> None:
+    def __init__(self, ai_game, simple: bool = True) -> None:
         self.settings = ai_game.settings
         self.screen = ai_game.screen
         self.screen_rect = ai_game.screen.get_rect()
@@ -22,6 +24,8 @@ class Ship:
         self.y = float(self.rect.y)
         self.script = SCRIPT[:]
         self.angle = 0
+        self.simple = simple
+        self.particles = Particles(self.screen)
 
     def update(self):
         if self.moving_right and self.rect.right < self.screen_rect.right:
@@ -39,18 +43,22 @@ class Ship:
         self.rect.y = self.y
 
     def blitme(self):
+        if not self.simple:
+            self.particles.update(self.rect)
         self.screen.blit(self.image, self.rect)
 
     def center_ship(self):
         self.script = SCRIPT[:]
         self.angle = 0
         self._rotate()
+        self.particles.start()
         self.rect.midbottom = self.screen_rect.midbottom
         self.rect.y -= 10
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
 
     def animate(self):
+        self.particles.stop()
         if self.script:
             x, y, r = self.script.pop()
             self.rect.y += y
