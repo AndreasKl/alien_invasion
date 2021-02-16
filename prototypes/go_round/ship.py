@@ -1,88 +1,42 @@
 import pygame
-
-
-class Ship:
-    def __init__(self, ai_game) -> None:
-        self.settings = ai_game.settings
-        self.screen = ai_game.screen
-        self.screen_rect = ai_game.screen.get_rect()
-
-        self.image = pygame.image.load("images/ship.png")
-        self.orig_image = self.image
-        self.rect = self.image.get_rect()
-
-        self.rect.midbottom = self.screen_rect.midbottom
-        self.rect.y -= 10
-
-        self.moving_right = False
-        self.moving_left = False
-        self.moving_down = False
-        self.moving_up = False
-        self.x = float(self.rect.x)
-        self.y = float(self.rect.y)
-        self.script = SCRIPT[:]
-        self.angle = 0
-
-    def update(self):
-        if self.moving_right and self.rect.right < self.screen_rect.right:
-            self.x += self.settings.ship_speed
-        if self.moving_left and self.rect.left > self.screen_rect.left:
-            self.x -= self.settings.ship_speed
-
-        self.rect.x = self.x
-
-        if self.moving_up and self.rect.top > self.screen_rect.top:
-            self.y -= self.settings.ship_speed
-        if self.moving_down and self.rect.bottom < self.screen_rect.bottom:
-            self.y += self.settings.ship_speed
-
-        self.rect.y = self.y
-
-    def blitme(self):
-        self.screen.blit(self.image, self.rect)
-
-    def center_ship(self):
-        self.script = SCRIPT[:]
-        self.angle = 0
-        self._rotate()
-        self.rect.midbottom = self.screen_rect.midbottom
-        self.rect.y -= 10
-        self.x = float(self.rect.x)
-        self.y = float(self.rect.y)
-
-    def animate(self):
-        if self.script:
-            x, y, r = self.script.pop()
-            self.rect.y += y
-            self.rect.x += x
-            self.angle = r
-            self._rotate()
-
-    def has_completed_animation(self):
-        return len(self.script) == 0
-
-    def _rotate(self):
-        self.image = pygame.transform.rotozoom(self.orig_image, self.angle, 1)
-        self.rect = self.image.get_rect(center=self.rect.center)
-
+from pygame.sprite import Sprite
 
 # x, y, rotation
 SCRIPT = [
-    (0, -35, 360),
-    (0, -35, 360),
-    (0, -35, 360),
-    (0, -35, 360),
-    (0, -35, 360),
-    (0, -35, 360),
-    (0, -35, 360),
-    (0, -35, 360),
-    (0, -35, 360),
     (0, -25, 360),
     (0, -25, 360),
     (0, -25, 360),
     (0, -25, 360),
+    (0, -25, 360),
+    (0, -25, 360),
+    (0, -25, 360),
+    (0, -25, 360),
+    (0, -25, 360),
+    (0, -25, 360),
+    (0, -25, 360),
+    (0, -25, 360),
+    (0, -25, 360),
+    (0, -25, 360),
+    (0, -25, 360),
+    (0, -20, 360),
+    (0, -20, 360),
     (0, -15, 360),
     (0, -15, 360),
+    (0, -15, 360),
+    (0, -15, 360),
+    (0, -15, 360),
+    (0, -15, 360),
+    (0, -15, 360),
+    (0, -15, 360),
+    (0, -15, 360),
+    (0, -13, 360),
+    (0, -13, 360),
+    (0, -13, 360),
+    (0, -11, 360),
+    (0, -11, 360),
+    (0, -11, 360),
+    (0, -11, 360),
+    (0, -11, 360),
     (0, -10, 360),
     (0, -10, 360),
     (0, -10, 360),
@@ -92,14 +46,14 @@ SCRIPT = [
     (0, -7, 360),
     (0, -6, 360),
     (0, -5, 360),
-    (1, -5, 360),
-    (1, -5, 360),
-    (1, -4, 360),
-    (1, -4, 360),
-    (1, -4, 360),
-    (1, -4, 360),
-    (1, -3, 360),
-    (1, -3, 360),
+    (0, -5, 360),
+    (0, -5, 360),
+    (0, -4, 360),
+    (0, -4, 360),
+    (0, -4, 360),
+    (0, -4, 360),
+    (0, -3, 360),
+    (0, -3, 360),
     (1, -3, 350),
     (1, -2, 350),
     (1, -2, 350),
@@ -403,3 +357,26 @@ SCRIPT = [
     (0, -1, 0),
     (0, -1, 0),
 ]
+
+
+class AnotherShip(Sprite):
+
+    def __init__(self, pos):
+        super().__init__()
+        self.image = pygame.image.load("ship.png")
+        self.orig_image = self.image
+        self.rect = self.image.get_rect(center=pos)
+        self.angle = 0
+        self.script = SCRIPT[:]
+
+    def update(self):
+        if self.script:
+            x, y, r = self.script.pop()
+            self.rect.x += x
+            self.rect.y += y
+            self.angle = r
+        self.rotate()
+
+    def rotate(self):
+        self.image = pygame.transform.rotozoom(self.orig_image, self.angle, 1)
+        self.rect = self.image.get_rect(center=self.rect.center)

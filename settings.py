@@ -16,5 +16,5 @@ class Settings:
         self.fleet_drop_speed = 10
         self.fleet_direction = 1
         self.ship_limit: int = 3
-        self.level_teaser_duration_frames: int = 90
+        self.level_teaser_duration_frames: int = 1
         self.level_count = 100

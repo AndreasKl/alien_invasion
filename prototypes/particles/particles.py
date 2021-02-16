@@ -1,6 +1,7 @@
 from typing import List
 
-import pygame, sys, random
+import pygame
+import random
 
 clock = pygame.time.Clock()
 
@@ -40,15 +41,6 @@ class Particles:
                 random.randint(2, 20),
                 self.some_kind_of_red()
             ))
-        self.typed_particles.append(
-            CircleParticle(
-                int((1024 / 2) - 20),
-                400,
-                random.randint(0, 20) / 10.0 - 1,
-                random.randint(0, 5) / 10.0 - 4,
-                random.randint(2, 20),
-                self.some_kind_of_red()
-            ))
 
         particles_to_remove = []
         for particle in self.typed_particles:
@@ -60,7 +52,7 @@ class Particles:
             self.typed_particles.remove(to_remove)
 
     def some_kind_of_red(self):
-        return (random.randint(139, 255), random.randint(0, 20), random.randint(0, 10))
+        return random.randint(139, 255), random.randint(0, 20), random.randint(0, 10)
 
 
 class CircleParticle:

@@ -52,7 +52,9 @@ class AlienInvasion:
             self._check_events()
 
             if self.stats.is_changing_level:
-                self.level_display.update()
+                self.ship.animate()
+                if self.ship.has_completed_animation():
+                    self.level_display.update()
 
             if self.stats.is_level_changed:
                 self._set_stage()
@@ -264,5 +266,6 @@ class AlienInvasion:
             return
 
 
-ai = AlienInvasion()
-ai.run_game()
+if __name__ == '__main__':
+    ai = AlienInvasion()
+    ai.run_game()

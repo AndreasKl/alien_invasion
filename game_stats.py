@@ -31,9 +31,7 @@ class GameStats:
         self.level = level
 
     def get_flight_object_speed(self) -> float:
-        speed = (1 + self.level * self.settings.alien_speed_increase) * self.settings.alien_speed
-        print(speed)
-        return speed
+        return (1 + self.level * self.settings.alien_speed_increase) * self.settings.alien_speed
 
     def set_game_mode(self, mode: Mode) -> None:
         self.game_mode = mode
