@@ -13,8 +13,10 @@ from game_stats import GameStats, Mode
 from hu_display import HUDisplay
 from level_display import LevelDisplay
 from pause_display import PauseDisplay
+from scripted_ship import ScriptedShip
 from settings import Settings
 from ship import Ship
+from tunnel import Tunnel
 
 back_ground = Background("images/background.jpg", [0, 0])
 clock = pygame.time.Clock()
@@ -44,6 +46,9 @@ class AlienInvasion:
         self.ship = Ship(self, False)
         self.bullets = pygame.sprite.Group()
         self.flight_objects = pygame.sprite.Group()
+        self.pause_animations = pygame.sprite.Group()
+        self.scripted_ship = ScriptedShip()
+        self.tunnel = Tunnel()
         self._create_fleet()
 
     def run_game(self) -> None:
@@ -52,11 +57,17 @@ class AlienInvasion:
             self._check_events()
 
             if self.stats.is_changing_level:
-                self.ship.animate()
-                if self.ship.has_completed_animation():
+                if not self.pause_animations:
+                    self.ship.hide_ship()
+                    self.scripted_ship = ScriptedShip()
+                    self.pause_animations.add(self.scripted_ship)
+                    self.pause_animations.add(self.tunnel)
+
+                if self.scripted_ship.has_finished():
                     self.level_display.update()
 
             if self.stats.is_level_changed:
+                self.pause_animations.empty()
                 self._set_stage()
                 self.stats.set_game_mode(Mode.ACTIVE)
 
@@ -76,6 +87,9 @@ class AlienInvasion:
         for bullet in self.bullets:
             bullet.draw_bullet()
         self.flight_objects.draw(self.screen)
+
+        self.pause_animations.update()
+        self.pause_animations.draw(self.screen)
 
         if self.stats.is_not_active:
             self.play_button.draw()
