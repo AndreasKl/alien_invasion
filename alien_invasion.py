@@ -48,7 +48,6 @@ class AlienInvasion:
         self.flight_objects = pygame.sprite.Group()
         self.pause_animations = pygame.sprite.Group()
         self.scripted_ship = ScriptedShip()
-        self.tunnel = Tunnel()
         self._create_fleet()
 
     def run_game(self) -> None:
@@ -61,7 +60,7 @@ class AlienInvasion:
                     self.ship.hide_ship()
                     self.scripted_ship = ScriptedShip()
                     self.pause_animations.add(self.scripted_ship)
-                    self.pause_animations.add(self.tunnel)
+                    self.pause_animations.add(Tunnel())
 
                 if self.scripted_ship.has_finished():
                     self.level_display.update()

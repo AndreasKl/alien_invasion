@@ -37,6 +37,7 @@ class Particles:
         self.stopped = True
 
     def start(self):
+        self.typed_particles.clear()
         self.stopped = False
 
     @staticmethod
